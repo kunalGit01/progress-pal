@@ -97,14 +97,14 @@ export default function Index() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
-        <div className="space-y-2 fade-up">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span className="text-sm font-medium">{format(new Date(), "EEEE, MMMM d")}</span>
+        <div className="space-y-1 fade-up">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium">{format(new Date(), "EEE, MMM d")}</span>
           </div>
-          <h1 className="text-3xl font-black text-foreground">
+          <h1 className="text-xl font-bold text-foreground">
             Today's <span className="text-gradient">Workout</span>
           </h1>
         </div>
@@ -118,18 +118,18 @@ export default function Index() {
 
         {/* Exercises */}
         {exercisesLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex items-center justify-center h-24">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {exercises.map((exercise, index) => {
               const exerciseLogs = logs.filter((l) => l.exercise_id === exercise.id);
               return (
                 <div 
                   key={exercise.id} 
                   className="fade-up" 
-                  style={{ animationDelay: `${index * 0.05}s` }}
+                  style={{ animationDelay: `${index * 0.03}s` }}
                 >
                   <ExerciseCard
                     exercise={exercise}
@@ -144,16 +144,16 @@ export default function Index() {
             })}
 
             {exercises.length === 0 && (
-              <div className="text-center py-16 fade-up">
-                <div className="h-20 w-20 rounded-3xl bg-secondary/50 flex items-center justify-center mx-auto mb-4">
-                  <Dumbbell className="h-10 w-10 text-muted-foreground" />
+              <div className="text-center py-10 fade-up">
+                <div className="h-14 w-14 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-3">
+                  <Dumbbell className="h-7 w-7 text-muted-foreground" />
                 </div>
-                <p className="text-lg font-medium text-foreground mb-1">No exercises yet</p>
-                <p className="text-muted-foreground mb-6">Add your first exercise to start tracking</p>
+                <p className="text-sm font-medium text-foreground mb-0.5">No exercises yet</p>
+                <p className="text-xs text-muted-foreground mb-4">Add your first exercise to start</p>
               </div>
             )}
 
-            <div className="fade-up stagger-3 pt-2">
+            <div className="fade-up pt-1">
               <AddExerciseSheet onAdd={handleAddExercise} />
             </div>
           </div>
