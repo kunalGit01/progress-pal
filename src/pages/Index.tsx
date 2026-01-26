@@ -5,7 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { DaySelector } from "@/components/workout/DaySelector";
 import { ExerciseCard } from "@/components/workout/ExerciseCard";
 import { AddExerciseSheet } from "@/components/workout/AddExerciseSheet";
-import { Loader2, Calendar } from "lucide-react";
+import { Loader2, Calendar, Zap, Dumbbell } from "lucide-react";
 import { format } from "date-fns";
 
 export default function Index() {
@@ -17,14 +17,12 @@ export default function Index() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const { logs, addSet, updateSet, deleteSet, refetch: refetchLogs } = useExerciseLogs(currentSessionId);
 
-  // Set default selected day
   useEffect(() => {
     if (workoutDays.length > 0 && !selectedDay) {
       setSelectedDay(workoutDays[0]);
     }
   }, [workoutDays, selectedDay]);
 
-  // Get or create today's session when day changes
   useEffect(() => {
     const initSession = async () => {
       if (!selectedDay) return;
@@ -43,7 +41,6 @@ export default function Index() {
     initSession();
   }, [selectedDay?.id]);
 
-  // Refetch logs when session changes
   useEffect(() => {
     if (currentSessionId) {
       refetchLogs();
@@ -70,9 +67,15 @@ export default function Index() {
 
   if (daysLoading || !user) {
     return (
-      <AppLayout title="Workout">
+      <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-center space-y-3">
+            <div className="relative inline-flex">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              <Zap className="h-10 w-10 text-primary relative" />
+            </div>
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
+          </div>
         </div>
       </AppLayout>
     );
@@ -80,10 +83,13 @@ export default function Index() {
 
   if (workoutDays.length === 0) {
     return (
-      <AppLayout title="Workout">
+      <AppLayout>
         <div className="flex flex-col items-center justify-center h-64 text-center">
-          <p className="text-muted-foreground">No workout days set up.</p>
-          <p className="text-sm text-muted-foreground">Please complete onboarding.</p>
+          <div className="h-16 w-16 rounded-2xl bg-secondary/50 flex items-center justify-center mb-4">
+            <Dumbbell className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="text-foreground font-medium mb-1">No workout days set up</p>
+          <p className="text-sm text-muted-foreground">Please complete onboarding first.</p>
         </div>
       </AppLayout>
     );
@@ -93,12 +99,14 @@ export default function Index() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="space-y-1">
+        <div className="space-y-2 fade-up">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="h-4 w-4" />
-            <span className="text-sm">{format(new Date(), "EEEE, MMMM d")}</span>
+            <span className="text-sm font-medium">{format(new Date(), "EEEE, MMMM d")}</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Today's Workout</h1>
+          <h1 className="text-3xl font-black text-foreground">
+            Today's <span className="text-gradient">Workout</span>
+          </h1>
         </div>
 
         {/* Day selector */}
@@ -115,29 +123,39 @@ export default function Index() {
           </div>
         ) : (
           <div className="space-y-4">
-            {exercises.map((exercise) => {
+            {exercises.map((exercise, index) => {
               const exerciseLogs = logs.filter((l) => l.exercise_id === exercise.id);
               return (
-                <ExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  sets={exerciseLogs}
-                  onAddSet={(data) => handleAddSet(exercise.id, exercise.name, exercise.muscle_group, data)}
-                  onUpdateSet={updateSet}
-                  onDeleteSet={deleteSet}
-                  onDeleteExercise={() => deleteExercise(exercise.id)}
-                />
+                <div 
+                  key={exercise.id} 
+                  className="fade-up" 
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <ExerciseCard
+                    exercise={exercise}
+                    sets={exerciseLogs}
+                    onAddSet={(data) => handleAddSet(exercise.id, exercise.name, exercise.muscle_group, data)}
+                    onUpdateSet={updateSet}
+                    onDeleteSet={deleteSet}
+                    onDeleteExercise={() => deleteExercise(exercise.id)}
+                  />
+                </div>
               );
             })}
 
             {exercises.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="mb-2">No exercises for this day yet.</p>
-                <p className="text-sm">Add your first exercise below!</p>
+              <div className="text-center py-16 fade-up">
+                <div className="h-20 w-20 rounded-3xl bg-secondary/50 flex items-center justify-center mx-auto mb-4">
+                  <Dumbbell className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <p className="text-lg font-medium text-foreground mb-1">No exercises yet</p>
+                <p className="text-muted-foreground mb-6">Add your first exercise to start tracking</p>
               </div>
             )}
 
-            <AddExerciseSheet onAdd={handleAddExercise} />
+            <div className="fade-up stagger-3 pt-2">
+              <AddExerciseSheet onAdd={handleAddExercise} />
+            </div>
           </div>
         )}
       </div>

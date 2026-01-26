@@ -3,8 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Dumbbell, Check } from "lucide-react";
+import { Loader2, Zap, Check, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const DAY_NAMES = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
@@ -18,7 +17,13 @@ export default function Onboarding() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="text-center space-y-4">
+          <div className="relative inline-flex">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+            <Zap className="h-12 w-12 text-primary relative" />
+          </div>
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground mx-auto" />
+        </div>
       </div>
     );
   }
@@ -37,7 +42,6 @@ export default function Onboarding() {
     setIsSubmitting(true);
 
     try {
-      // Update profile with training days
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -48,7 +52,6 @@ export default function Onboarding() {
 
       if (profileError) throw profileError;
 
-      // Create workout day templates
       const workoutDays = Array.from({ length: selectedDays }, (_, i) => ({
         user_id: user.id,
         day_number: i + 1,
@@ -64,7 +67,7 @@ export default function Onboarding() {
       await refreshProfile();
 
       toast({
-        title: "Setup complete!",
+        title: "You're all set! 💪",
         description: `Created ${selectedDays} workout days for you.`,
       });
 
@@ -81,62 +84,100 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="mb-8 flex flex-col items-center animate-fade-in">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
-          <Dumbbell className="h-8 w-8 text-primary" />
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Header */}
+      <div className="relative flex-shrink-0 px-6 pt-16 pb-8">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-primary/10 rounded-full blur-3xl" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Let's set up your training</h1>
-        <p className="text-muted-foreground mt-1 text-center">
-          How many days per week do you train?
-        </p>
+        
+        <div className="relative text-center space-y-3 fade-up">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <Zap className="h-4 w-4" />
+            Quick Setup
+          </div>
+          <h1 className="text-3xl font-black tracking-tight">
+            How often do you train?
+          </h1>
+          <p className="text-muted-foreground max-w-xs mx-auto">
+            Select the number of days per week you typically workout
+          </p>
+        </div>
       </div>
 
-      <Card className="w-full max-w-sm border-border/50 bg-card animate-fade-in">
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-4 gap-2 mb-6">
+      {/* Day selector */}
+      <div className="flex-1 px-6 pb-8">
+        <div className="max-w-sm mx-auto space-y-8 fade-up stagger-1">
+          {/* Days grid */}
+          <div className="grid grid-cols-7 gap-2">
             {[1, 2, 3, 4, 5, 6, 7].map((day) => (
               <button
                 key={day}
                 onClick={() => setSelectedDays(day)}
                 className={`
-                  relative h-14 rounded-lg font-bold text-lg transition-all tap-target
+                  relative aspect-square rounded-2xl font-bold text-xl transition-all duration-200
+                  flex items-center justify-center
                   ${selectedDays === day
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                    : "bg-muted text-muted-foreground hover:bg-accent"
+                    ? "bg-gradient-to-br from-primary to-emerald-400 text-white shadow-lg glow-primary scale-105"
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }
                 `}
               >
                 {day}
                 {selectedDays === day && (
-                  <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-success flex items-center justify-center success-animate">
-                    <Check className="h-3 w-3 text-success-foreground" />
+                  <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-white flex items-center justify-center shadow-md scale-in">
+                    <Check className="h-3 w-3 text-primary" />
                   </div>
                 )}
               </button>
             ))}
           </div>
 
-          <div className="bg-muted/50 rounded-lg p-4 mb-6">
-            <p className="text-sm text-muted-foreground text-center">
-              We'll create <span className="text-foreground font-semibold">{selectedDays}</span> workout day{selectedDays > 1 ? "s" : ""} for you.
-              You can customize exercises for each day.
-            </p>
+          {/* Info card */}
+          <div className="glass-card rounded-2xl p-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl font-black text-gradient">{selectedDays}</span>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">
+                  {selectedDays} day{selectedDays > 1 ? "s" : ""} per week
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  We'll create {selectedDays} custom workout template{selectedDays > 1 ? "s" : ""}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 pt-2">
+              {Array.from({ length: selectedDays }, (_, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1.5 rounded-lg bg-secondary/50 text-sm font-medium text-muted-foreground"
+                >
+                  {DAY_NAMES[i]}
+                </span>
+              ))}
+            </div>
           </div>
 
+          {/* CTA */}
           <Button
             onClick={handleSubmit}
-            className="w-full h-12 text-base font-semibold"
+            className="w-full h-14 text-base font-bold rounded-xl btn-gradient"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              "Get Started"
+              <>
+                Start Training
+                <ChevronRight className="h-5 w-5 ml-1" />
+              </>
             )}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
