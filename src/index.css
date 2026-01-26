@@ -2,105 +2,119 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FitTrack Design System - Dark, High-Contrast Fitness Theme */
+/* FitTrack Pro - Premium Fitness Design System */
+/* Inspired by high-end fitness apps with bold gradients and sleek UI */
 
 @layer base {
   :root {
-    --background: 220 20% 6%;
-    --foreground: 210 20% 98%;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 210 20% 98%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 18% 10%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 100% 52%;
+    --primary: 168 84% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 16% 16%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 14% 14%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 240 5% 14%;
+    --muted-foreground: 240 5% 55%;
 
-    --accent: 220 16% 18%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 168 84% 42%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 46%;
+    --success: 152 76% 45%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
 
-    --pr: 280 100% 65%;
-    --pr-foreground: 0 0% 100%;
+    --pr: 45 93% 58%;
+    --pr-foreground: 0 0% 0%;
 
-    --border: 220 13% 20%;
-    --input: 220 13% 20%;
-    --ring: 210 100% 52%;
+    --energy: 280 100% 65%;
+    --energy-foreground: 0 0% 100%;
 
-    --radius: 0.75rem;
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 168 84% 42%;
 
-    --sidebar-background: 220 18% 8%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 210 100% 52%;
+    --radius: 1rem;
+
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 168 84% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 16% 14%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 220 13% 18%;
-    --sidebar-ring: 210 100% 52%;
+    --sidebar-accent: 240 5% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 14%;
+    --sidebar-ring: 168 84% 42%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(168, 84%, 42%) 0%, hsl(192, 80%, 45%) 100%);
+    --gradient-energy: linear-gradient(135deg, hsl(280, 100%, 65%) 0%, hsl(320, 85%, 55%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45, 93%, 58%) 0%, hsl(38, 92%, 50%) 100%);
+    --gradient-dark: linear-gradient(135deg, hsl(240, 10%, 8%) 0%, hsl(240, 10%, 4%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
   }
 
   .dark {
-    --background: 220 20% 6%;
-    --foreground: 210 20% 98%;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 210 20% 98%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 18% 10%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 100% 52%;
+    --primary: 168 84% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 16% 16%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 14% 14%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 240 5% 14%;
+    --muted-foreground: 240 5% 55%;
 
-    --accent: 220 16% 18%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 168 84% 42%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 46%;
+    --success: 152 76% 45%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
 
-    --pr: 280 100% 65%;
-    --pr-foreground: 0 0% 100%;
+    --pr: 45 93% 58%;
+    --pr-foreground: 0 0% 0%;
 
-    --border: 220 13% 20%;
-    --input: 220 13% 20%;
-    --ring: 210 100% 52%;
+    --energy: 280 100% 65%;
+    --energy-foreground: 0 0% 100%;
 
-    --sidebar-background: 220 18% 8%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 210 100% 52%;
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 168 84% 42%;
+
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 168 84% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 16% 14%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 220 13% 18%;
-    --sidebar-ring: 210 100% 52%;
+    --sidebar-accent: 240 5% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 14%;
+    --sidebar-ring: 168 84% 42%;
   }
 }
 
@@ -116,92 +130,165 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: 
+      radial-gradient(ellipse 80% 60% at 50% -20%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    background-attachment: fixed;
   }
 
-  /* Touch-optimized defaults */
   button, a, input, select, textarea {
     @apply touch-manipulation;
   }
 }
 
 @layer components {
-  /* Large tap target utility */
+  /* Glass morphism card */
+  .glass-card {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* Premium gradient button */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    @apply text-white font-semibold shadow-lg;
+    box-shadow: 0 8px 24px -4px hsl(168 84% 42% / 0.3);
+  }
+
+  .btn-gradient:hover {
+    box-shadow: 0 12px 32px -4px hsl(168 84% 42% / 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Large tap target */
   .tap-target {
     @apply min-h-[48px] min-w-[48px];
   }
 
-  /* Stat card glow effect */
-  .stat-glow {
-    @apply relative overflow-hidden;
+  /* Stat card with glow */
+  .stat-card {
+    @apply relative overflow-hidden rounded-2xl p-4;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
-  .stat-glow::before {
+  .stat-card::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background: radial-gradient(circle at center, hsl(var(--primary) / 0.15) 0%, transparent 70%);
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: radial-gradient(circle at 50% 0%, hsl(168 84% 42% / 0.15) 0%, transparent 60%);
   }
 
-  .stat-glow:hover::before {
+  .stat-card:hover::before {
     @apply opacity-100;
   }
 
-  /* PR badge animation */
-  @keyframes pr-pulse {
+  /* PR badge with pulse */
+  @keyframes pr-glow {
     0%, 100% { 
-      transform: scale(1); 
-      box-shadow: 0 0 0 0 hsl(var(--pr) / 0.4);
+      box-shadow: 0 0 0 0 hsl(45 93% 58% / 0.4);
     }
     50% { 
-      transform: scale(1.05); 
-      box-shadow: 0 0 20px 4px hsl(var(--pr) / 0.2);
+      box-shadow: 0 0 20px 4px hsl(45 93% 58% / 0.2);
     }
   }
 
   .pr-badge {
-    animation: pr-pulse 2s ease-in-out infinite;
+    background: var(--gradient-gold);
+    animation: pr-glow 2s ease-in-out infinite;
   }
 
-  /* Success animation */
-  @keyframes success-check {
-    0% { transform: scale(0); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+  /* Exercise card styling */
+  .exercise-card {
+    @apply relative rounded-2xl overflow-hidden;
+    background: linear-gradient(180deg, hsl(240 10% 8%) 0%, hsl(240 10% 6%) 100%);
+    border: 1px solid hsl(240 5% 14%);
   }
 
-  .success-animate {
-    animation: success-check 0.4s ease-out forwards;
+  /* Input styling */
+  .input-premium {
+    @apply bg-secondary/50 border-border/50 rounded-xl;
+    transition: all 0.2s ease;
   }
 
-  /* Slide up animation for modals/sheets */
+  .input-premium:focus {
+    @apply border-primary/50 ring-2 ring-primary/20;
+    box-shadow: 0 0 20px -4px hsl(168 84% 42% / 0.15);
+  }
+
+  /* Floating action button */
+  .fab {
+    @apply fixed bottom-20 right-4 z-40;
+    background: var(--gradient-primary);
+    @apply rounded-full h-14 w-14 flex items-center justify-center shadow-xl;
+    box-shadow: 0 8px 32px -4px hsl(168 84% 42% / 0.4);
+  }
+
+  /* Bottom navigation */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50;
+    background: linear-gradient(180deg, hsl(240 10% 6% / 0.95) 0%, hsl(240 10% 4% / 0.98) 100%);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid hsl(240 5% 14% / 0.5);
+  }
+
+  /* Animations */
+  @keyframes fade-up {
+    from { 
+      opacity: 0; 
+      transform: translateY(16px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  @keyframes scale-in {
+    from { 
+      opacity: 0; 
+      transform: scale(0.95); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
+  }
+
   @keyframes slide-up {
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
+  }
+
+  .fade-up {
+    animation: fade-up 0.4s ease-out forwards;
+  }
+
+  .scale-in {
+    animation: scale-in 0.3s ease-out forwards;
   }
 
   .slide-up {
     animation: slide-up 0.3s ease-out forwards;
   }
 
-  /* Fade in animation */
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* Staggered animations */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 
-  .fade-in {
-    animation: fade-in 0.3s ease-out forwards;
-  }
-
-  /* Progress bar animation */
-  @keyframes progress-fill {
-    from { width: 0; }
-  }
-
-  .progress-animate {
-    animation: progress-fill 0.6s ease-out forwards;
-  }
-
-  /* Number input styles */
+  /* Number input hide arrows */
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -214,9 +301,9 @@
 }
 
 @layer utilities {
-  /* Safe area padding for mobile */
+  /* Safe area padding */
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
   }
 
   .safe-top {
@@ -224,12 +311,27 @@
   }
 
   /* Gradient text */
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-[hsl(280,100%,65%)];
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
   }
 
-  /* Card hover effect */
-  .card-hover {
-    @apply transition-all duration-200 hover:bg-accent/50 active:scale-[0.98];
+  .text-gradient-energy {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-energy);
+  }
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-gold);
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 40px -8px hsl(168 84% 42% / 0.3);
+  }
+
+  .glow-energy {
+    box-shadow: 0 0 40px -8px hsl(280 100% 65% / 0.3);
   }
 }

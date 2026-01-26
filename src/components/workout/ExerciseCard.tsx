@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Exercise, ExerciseLog } from "@/hooks/useWorkoutData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus, Check, X, Trophy } from "lucide-react";
+import { Trash2, Plus, Check, X, Trophy, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -65,24 +71,44 @@ export function ExerciseCard({
 
   return (
     <div className={cn(
-      "bg-card rounded-xl border border-border p-4 space-y-3",
-      isPR && "border-pr/50 shadow-[0_0_20px_-5px] shadow-pr/20"
+      "exercise-card p-4 space-y-4 transition-all duration-300",
+      isPR && "ring-2 ring-pr/50 shadow-lg shadow-pr/10"
     )}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-foreground">{exercise.name}</h3>
-          {isPR && (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-pr/20 text-pr text-xs font-medium pr-badge">
-              <Trophy className="h-3 w-3" />
-              PR
-            </div>
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-bold text-lg text-foreground truncate">{exercise.name}</h3>
+            {isPR && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold pr-badge text-black">
+                <Trophy className="h-3 w-3" />
+                NEW PR
+              </span>
+            )}
+          </div>
+          {exercise.muscle_group && (
+            <span className="text-xs text-muted-foreground font-medium">
+              {exercise.muscle_group}
+            </span>
           )}
         </div>
-        {exercise.muscle_group && (
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
-            {exercise.muscle_group}
-          </span>
-        )}
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={onDeleteExercise}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove Exercise
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Sets list */}
@@ -91,13 +117,15 @@ export function ExerciseCard({
           <div
             key={set.id}
             className={cn(
-              "flex items-center gap-3 p-3 rounded-lg bg-muted/50 transition-all",
-              editingSet === set.id && "bg-accent"
+              "flex items-center gap-3 p-3 rounded-xl transition-all duration-200",
+              editingSet === set.id 
+                ? "bg-primary/10 ring-1 ring-primary/30" 
+                : "bg-secondary/30 hover:bg-secondary/50"
             )}
           >
-            <span className="text-sm font-medium text-muted-foreground w-8">
-              #{idx + 1}
-            </span>
+            <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-secondary text-sm font-bold text-muted-foreground">
+              {idx + 1}
+            </div>
 
             {editingSet === set.id ? (
               <>
@@ -106,24 +134,23 @@ export function ExerciseCard({
                     type="number"
                     value={editReps}
                     onChange={(e) => setEditReps(e.target.value)}
-                    className="h-10 w-20 text-center bg-background"
+                    className="h-10 w-16 text-center bg-background border-border/50 rounded-lg"
                     placeholder="Reps"
                   />
-                  <span className="text-muted-foreground">×</span>
+                  <span className="text-muted-foreground font-medium">×</span>
                   <Input
                     type="number"
                     value={editWeight}
                     onChange={(e) => setEditWeight(e.target.value)}
-                    className="h-10 w-24 text-center bg-background"
-                    placeholder="Weight"
+                    className="h-10 w-20 text-center bg-background border-border/50 rounded-lg"
+                    placeholder="kg"
                   />
                   <span className="text-sm text-muted-foreground">kg</span>
                 </div>
                 <div className="flex gap-1">
                   <Button
                     size="icon"
-                    variant="ghost"
-                    className="h-9 w-9 text-success"
+                    className="h-9 w-9 bg-success hover:bg-success/90"
                     onClick={() => handleSaveEdit(set.id)}
                   >
                     <Check className="h-4 w-4" />
@@ -142,17 +169,21 @@ export function ExerciseCard({
               <>
                 <button
                   onClick={() => startEdit(set)}
-                  className="flex-1 flex items-center gap-2 text-left tap-target"
+                  className="flex-1 flex items-center gap-2 text-left tap-target group"
                 >
-                  <span className="text-lg font-bold text-foreground">{set.reps}</span>
+                  <span className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                    {set.reps}
+                  </span>
                   <span className="text-muted-foreground">×</span>
-                  <span className="text-lg font-bold text-foreground">{set.weight}</span>
+                  <span className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                    {set.weight}
+                  </span>
                   <span className="text-sm text-muted-foreground">kg</span>
                 </button>
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                  className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   onClick={() => onDeleteSet(set.id)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -164,34 +195,33 @@ export function ExerciseCard({
 
         {/* Add set form */}
         {isAdding ? (
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <span className="text-sm font-medium text-muted-foreground w-8">
-              #{sets.length + 1}
-            </span>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 ring-1 ring-primary/20">
+            <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/20 text-sm font-bold text-primary">
+              {sets.length + 1}
+            </div>
             <div className="flex-1 flex items-center gap-2">
               <Input
                 type="number"
                 value={newReps}
                 onChange={(e) => setNewReps(e.target.value)}
-                className="h-10 w-20 text-center"
+                className="h-10 w-16 text-center bg-background border-primary/30 rounded-lg focus:ring-primary/30"
                 placeholder="Reps"
                 autoFocus
               />
-              <span className="text-muted-foreground">×</span>
+              <span className="text-muted-foreground font-medium">×</span>
               <Input
                 type="number"
                 value={newWeight}
                 onChange={(e) => setNewWeight(e.target.value)}
-                className="h-10 w-24 text-center"
-                placeholder="Weight"
+                className="h-10 w-20 text-center bg-background border-primary/30 rounded-lg focus:ring-primary/30"
+                placeholder="kg"
               />
               <span className="text-sm text-muted-foreground">kg</span>
             </div>
             <div className="flex gap-1">
               <Button
                 size="icon"
-                variant="ghost"
-                className="h-9 w-9 text-success"
+                className="h-9 w-9 bg-primary hover:bg-primary/90"
                 onClick={handleAddSet}
                 disabled={!newReps || !newWeight}
               >
@@ -214,27 +244,14 @@ export function ExerciseCard({
         ) : (
           <Button
             variant="ghost"
-            className="w-full h-12 border border-dashed border-border hover:border-primary hover:bg-primary/5"
+            className="w-full h-12 rounded-xl border border-dashed border-border/50 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all"
             onClick={() => setIsAdding(true)}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             Add Set
           </Button>
         )}
       </div>
-
-      {/* Delete exercise button */}
-      {sets.length === 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-          onClick={onDeleteExercise}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Remove Exercise
-        </Button>
-      )}
     </div>
   );
 }
