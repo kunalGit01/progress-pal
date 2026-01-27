@@ -29,7 +29,13 @@ export default function Index() {
 
   useEffect(() => {
     const initSession = async () => {
-      if (!selectedDay) return;
+      if (!selectedDay) {
+        setCurrentSessionId(null);
+        return;
+      }
+
+      // Clear current session immediately to prevent showing stale data
+      setCurrentSessionId(null);
 
       // Calculate the date for this workout day in the selected week
       const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -45,19 +51,12 @@ export default function Index() {
         if (newSession) {
           setCurrentSessionId(newSession.id);
         }
-      } else {
-        setCurrentSessionId(null);
       }
+      // If no session and not current week, currentSessionId stays null
     };
 
     initSession();
-  }, [selectedDay?.id, selectedDate]);
-
-  useEffect(() => {
-    if (currentSessionId) {
-      refetchLogs();
-    }
-  }, [currentSessionId]);
+  }, [selectedDay?.id, selectedDate, isCurrentWeek]);
 
   const handleAddExercise = async (name: string, muscleGroup?: string) => {
     await addExercise(name, muscleGroup);
