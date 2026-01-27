@@ -11,7 +11,7 @@ import { format, startOfWeek, isSameWeek } from "date-fns";
 
 export default function Index() {
   const { user } = useAuth();
-  const { workoutDays, loading: daysLoading } = useWorkoutDays();
+  const { workoutDays, loading: daysLoading, renameWorkoutDay } = useWorkoutDays();
   const [selectedDay, setSelectedDay] = useState(workoutDays[0] || null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { exercises, loading: exercisesLoading, addExercise, deleteExercise } = useExercises(selectedDay?.id || null);
@@ -123,6 +123,7 @@ export default function Index() {
           days={workoutDays}
           selectedDay={selectedDay}
           onSelect={setSelectedDay}
+          onRename={renameWorkoutDay}
         />
 
         {/* Exercises */}

@@ -64,11 +64,27 @@ export function useWorkoutDays() {
     setLoading(false);
   };
 
+  const renameWorkoutDay = async (dayId: string, newName: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("workout_days")
+      .update({ name: newName })
+      .eq("id", dayId)
+      .eq("user_id", user.id);
+
+    if (!error) {
+      setWorkoutDays(workoutDays.map(day => 
+        day.id === dayId ? { ...day, name: newName } : day
+      ));
+    }
+  };
+
   useEffect(() => {
     fetchWorkoutDays();
   }, [user]);
 
-  return { workoutDays, loading, refetch: fetchWorkoutDays };
+  return { workoutDays, loading, refetch: fetchWorkoutDays, renameWorkoutDay };
 }
 
 export function useExercises(workoutDayId: string | null) {
