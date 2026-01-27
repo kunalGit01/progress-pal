@@ -259,6 +259,7 @@ export function useExerciseLogs(sessionId: string | null) {
       return;
     }
 
+    setLoading(true);
     const { data, error } = await supabase
       .from("exercise_logs")
       .select("*")
@@ -268,11 +269,15 @@ export function useExerciseLogs(sessionId: string | null) {
 
     if (!error && data) {
       setLogs(data);
+    } else {
+      setLogs([]);
     }
     setLoading(false);
   };
 
   useEffect(() => {
+    // Clear logs immediately when sessionId changes to prevent showing stale data
+    setLogs([]);
     fetchLogs();
   }, [user, sessionId]);
 
