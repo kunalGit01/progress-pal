@@ -5,17 +5,21 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { DaySelector } from "@/components/workout/DaySelector";
 import { ExerciseCard } from "@/components/workout/ExerciseCard";
 import { AddExerciseSheet } from "@/components/workout/AddExerciseSheet";
-import { Loader2, Calendar, Zap, Dumbbell } from "lucide-react";
-import { format } from "date-fns";
+import { WeekSelector } from "@/components/workout/WeekSelector";
+import { Loader2, Zap, Dumbbell } from "lucide-react";
+import { format, startOfWeek, isSameWeek } from "date-fns";
 
 export default function Index() {
   const { user } = useAuth();
   const { workoutDays, loading: daysLoading } = useWorkoutDays();
   const [selectedDay, setSelectedDay] = useState(workoutDays[0] || null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const { exercises, loading: exercisesLoading, addExercise, deleteExercise } = useExercises(selectedDay?.id || null);
-  const { sessions, createSession, getTodaySession } = useWorkoutSessions();
+  const { sessions, createSession, getSessionByDate } = useWorkoutSessions();
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const { logs, addSet, updateSet, deleteSet, refetch: refetchLogs } = useExerciseLogs(currentSessionId);
+
+  const isCurrentWeek = isSameWeek(selectedDate, new Date(), { weekStartsOn: 1 });
 
   useEffect(() => {
     if (workoutDays.length > 0 && !selectedDay) {
@@ -27,19 +31,27 @@ export default function Index() {
     const initSession = async () => {
       if (!selectedDay) return;
 
-      const existingSession = await getTodaySession(selectedDay.id);
+      // Calculate the date for this workout day in the selected week
+      const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+      const workoutDate = new Date(weekStart);
+      workoutDate.setDate(weekStart.getDate() + (selectedDay.day_number - 1));
+
+      const existingSession = await getSessionByDate(selectedDay.id, workoutDate);
       if (existingSession) {
         setCurrentSessionId(existingSession.id);
-      } else {
-        const newSession = await createSession(selectedDay.id);
+      } else if (isCurrentWeek) {
+        // Only auto-create sessions for current week
+        const newSession = await createSession(selectedDay.id, workoutDate);
         if (newSession) {
           setCurrentSessionId(newSession.id);
         }
+      } else {
+        setCurrentSessionId(null);
       }
     };
 
     initSession();
-  }, [selectedDay?.id]);
+  }, [selectedDay?.id, selectedDate]);
 
   useEffect(() => {
     if (currentSessionId) {
@@ -69,12 +81,12 @@ export default function Index() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-2">
             <div className="relative inline-flex">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-              <Zap className="h-10 w-10 text-primary relative" />
+              <Zap className="h-8 w-8 text-primary relative" />
             </div>
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground mx-auto" />
           </div>
         </div>
       </AppLayout>
@@ -85,11 +97,11 @@ export default function Index() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center h-64 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-secondary/50 flex items-center justify-center mb-4">
-            <Dumbbell className="h-8 w-8 text-muted-foreground" />
+          <div className="h-12 w-12 rounded-xl bg-secondary/50 flex items-center justify-center mb-3">
+            <Dumbbell className="h-6 w-6 text-muted-foreground" />
           </div>
-          <p className="text-foreground font-medium mb-1">No workout days set up</p>
-          <p className="text-sm text-muted-foreground">Please complete onboarding first.</p>
+          <p className="text-sm font-medium text-foreground mb-0.5">No workout days set up</p>
+          <p className="text-xs text-muted-foreground">Please complete onboarding first.</p>
         </div>
       </AppLayout>
     );
@@ -97,16 +109,13 @@ export default function Index() {
 
   return (
     <AppLayout>
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="space-y-1 fade-up">
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" />
-            <span className="text-xs font-medium">{format(new Date(), "EEE, MMM d")}</span>
-          </div>
-          <h1 className="text-xl font-bold text-foreground">
-            Today's <span className="text-gradient">Workout</span>
+      <div className="space-y-3">
+        {/* Header with Week Selector */}
+        <div className="space-y-2 fade-up">
+          <h1 className="text-lg font-bold text-foreground">
+            {isCurrentWeek ? "Today's" : format(selectedDate, "MMM d")} <span className="text-gradient">Workout</span>
           </h1>
+          <WeekSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
         </div>
 
         {/* Day selector */}
@@ -118,11 +127,11 @@ export default function Index() {
 
         {/* Exercises */}
         {exercisesLoading ? (
-          <div className="flex items-center justify-center h-24">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <div className="flex items-center justify-center h-20">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {exercises.map((exercise, index) => {
               const exerciseLogs = logs.filter((l) => l.exercise_id === exercise.id);
               return (
@@ -144,18 +153,24 @@ export default function Index() {
             })}
 
             {exercises.length === 0 && (
-              <div className="text-center py-10 fade-up">
-                <div className="h-14 w-14 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-3">
-                  <Dumbbell className="h-7 w-7 text-muted-foreground" />
+              <div className="text-center py-8 fade-up">
+                <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
+                  <Dumbbell className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <p className="text-sm font-medium text-foreground mb-0.5">No exercises yet</p>
-                <p className="text-xs text-muted-foreground mb-4">Add your first exercise to start</p>
+                <p className="text-xs font-medium text-foreground mb-0.5">No exercises yet</p>
+                <p className="text-[10px] text-muted-foreground mb-3">Add your first exercise to start</p>
               </div>
             )}
 
-            <div className="fade-up pt-1">
-              <AddExerciseSheet onAdd={handleAddExercise} />
-            </div>
+            {!currentSessionId && !isCurrentWeek ? (
+              <div className="text-center py-4">
+                <p className="text-xs text-muted-foreground">No session data for this week</p>
+              </div>
+            ) : (
+              <div className="fade-up">
+                <AddExerciseSheet onAdd={handleAddExercise} />
+              </div>
+            )}
           </div>
         )}
       </div>
