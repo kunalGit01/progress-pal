@@ -212,7 +212,23 @@ export function useWorkoutSessions(dateRange?: { start: Date; end: Date }) {
     return data;
   };
 
-  return { sessions, loading, refetch: fetchSessions, createSession, getTodaySession };
+  const getSessionByDate = async (workoutDayId: string, date: Date) => {
+    if (!user) return null;
+
+    const dateStr = date.toISOString().split("T")[0];
+
+    const { data } = await supabase
+      .from("workout_sessions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("workout_day_id", workoutDayId)
+      .eq("date", dateStr)
+      .maybeSingle();
+
+    return data;
+  };
+
+  return { sessions, loading, refetch: fetchSessions, createSession, getTodaySession, getSessionByDate };
 }
 
 export function useExerciseLogs(sessionId: string | null) {
