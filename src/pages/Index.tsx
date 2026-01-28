@@ -130,6 +130,15 @@ export default function Index() {
           <div className="flex items-center justify-center h-20">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
           </div>
+        ) : !currentSessionId && !isCurrentWeek ? (
+          // Past week with no session - show empty state
+          <div className="text-center py-8 fade-up">
+            <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
+              <Dumbbell className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className="text-xs font-medium text-foreground mb-0.5">No workout recorded</p>
+            <p className="text-[10px] text-muted-foreground">This week has no training data</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {exercises.map((exercise, index) => {
@@ -162,15 +171,9 @@ export default function Index() {
               </div>
             )}
 
-            {!currentSessionId && !isCurrentWeek ? (
-              <div className="text-center py-4">
-                <p className="text-xs text-muted-foreground">No session data for this week</p>
-              </div>
-            ) : (
-              <div className="fade-up">
-                <AddExerciseSheet onAdd={handleAddExercise} />
-              </div>
-            )}
+            <div className="fade-up">
+              <AddExerciseSheet onAdd={handleAddExercise} />
+            </div>
           </div>
         )}
       </div>
