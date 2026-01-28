@@ -7,12 +7,12 @@ import { ExerciseCard } from "@/components/workout/ExerciseCard";
 import { AddExerciseSheet } from "@/components/workout/AddExerciseSheet";
 import { WeekSelector } from "@/components/workout/WeekSelector";
 import { Loader2, Zap, Dumbbell } from "lucide-react";
-import { format, startOfWeek, isSameWeek } from "date-fns";
+import { format, startOfWeek, isSameWeek, getDay, isBefore, startOfDay } from "date-fns";
 
 export default function Index() {
   const { user } = useAuth();
   const { workoutDays, loading: daysLoading, renameWorkoutDay } = useWorkoutDays();
-  const [selectedDay, setSelectedDay] = useState(workoutDays[0] || null);
+  const [selectedDay, setSelectedDay] = useState<typeof workoutDays[0] | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { exercises, loading: exercisesLoading, addExercise, deleteExercise } = useExercises(selectedDay?.id || null);
   const { sessions, createSession, getSessionByDate } = useWorkoutSessions();
@@ -20,12 +20,41 @@ export default function Index() {
   const { logs, addSet, updateSet, deleteSet, refetch: refetchLogs } = useExerciseLogs(currentSessionId);
 
   const isCurrentWeek = isSameWeek(selectedDate, new Date(), { weekStartsOn: 1 });
+  
+  // Calculate the actual date for the selected workout day
+  const getWorkoutDate = (day: typeof workoutDays[0]) => {
+    const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+    const workoutDate = new Date(weekStart);
+    workoutDate.setDate(weekStart.getDate() + (day.day_number - 1));
+    return workoutDate;
+  };
 
+  // Check if selected day is in the past (before today)
+  const isSelectedDayPast = selectedDay 
+    ? isBefore(startOfDay(getWorkoutDate(selectedDay)), startOfDay(new Date()))
+    : false;
+
+  // Auto-select the current day of the week when viewing current week
   useEffect(() => {
-    if (workoutDays.length > 0 && !selectedDay) {
-      setSelectedDay(workoutDays[0]);
+    if (workoutDays.length > 0) {
+      if (isCurrentWeek) {
+        // Get today's day number (1 = Monday, 7 = Sunday)
+        const jsDay = getDay(new Date()); // 0 = Sunday, 1 = Monday, etc.
+        const todayDayNumber = jsDay === 0 ? 7 : jsDay; // Convert to 1-7 (Mon-Sun)
+        
+        // Find the workout day that matches today, or fall back to first day
+        const todayWorkoutDay = workoutDays.find(d => d.day_number === todayDayNumber);
+        const targetDay = todayWorkoutDay || workoutDays[0];
+        
+        if (!selectedDay || selectedDay.id !== targetDay.id) {
+          setSelectedDay(targetDay);
+        }
+      } else if (!selectedDay) {
+        // For other weeks, default to first day if nothing selected
+        setSelectedDay(workoutDays[0]);
+      }
     }
-  }, [workoutDays, selectedDay]);
+  }, [workoutDays, isCurrentWeek]);
 
   useEffect(() => {
     const initSession = async () => {
@@ -130,14 +159,14 @@ export default function Index() {
           <div className="flex items-center justify-center h-20">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
           </div>
-        ) : !currentSessionId && !isCurrentWeek ? (
-          // Past week with no session - show empty state
+        ) : !currentSessionId && isSelectedDayPast ? (
+          // Past day with no session - show empty state
           <div className="text-center py-8 fade-up">
             <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
               <Dumbbell className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="text-xs font-medium text-foreground mb-0.5">No workout recorded</p>
-            <p className="text-[10px] text-muted-foreground">This week has no training data</p>
+            <p className="text-[10px] text-muted-foreground">No training data for this day</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -161,7 +190,7 @@ export default function Index() {
               );
             })}
 
-            {exercises.length === 0 && (
+            {exercises.length === 0 && !isSelectedDayPast && (
               <div className="text-center py-8 fade-up">
                 <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
                   <Dumbbell className="h-5 w-5 text-muted-foreground" />
@@ -171,9 +200,10 @@ export default function Index() {
               </div>
             )}
 
-            <div className="fade-up">
+            {/* Only show add exercise button for today or future days */}
+            {!isSelectedDayPast && <div className="fade-up">
               <AddExerciseSheet onAdd={handleAddExercise} />
-            </div>
+            </div>}
           </div>
         )}
       </div>
