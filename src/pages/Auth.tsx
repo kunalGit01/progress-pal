@@ -133,7 +133,7 @@ export default function Auth() {
           </div>
           <div>
             <h1 className="text-4xl font-black tracking-tight">
-              <span className="text-gradient">FitTrack</span>
+              <span className="text-gradient">Progress-Pal</span>
             </h1>
             <p className="text-muted-foreground mt-2 text-lg">
               Your personal training companion
@@ -146,7 +146,7 @@ export default function Auth() {
       <div className="flex-1 px-4 pb-8 fade-up stagger-1">
         <div className="max-w-sm mx-auto">
           {/* Google Sign In */}
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             className="w-full h-14 text-base font-medium mb-6 bg-white/5 border-white/10 hover:bg-white/10"
@@ -189,7 +189,7 @@ export default function Auth() {
                 or continue with email
               </span>
             </div>
-          </div>
+          </div> */}
 
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-secondary/50 p-1 h-12 rounded-xl mb-6">
