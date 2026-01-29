@@ -335,45 +335,43 @@ export function useExerciseLogs(sessionId: string | null) {
   return { logs, loading, refetch: fetchLogs, addSet, updateSet, deleteSet };
 }
 
+export interface ExerciseLogWithDate extends ExerciseLog {
+  session_date: string;
+}
+
 export function useAllExerciseLogs(dateRange?: { start: Date; end: Date }) {
   const { user } = useAuth();
-  const [logs, setLogs] = useState<ExerciseLog[]>([]);
+  const [logs, setLogs] = useState<ExerciseLogWithDate[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchLogs = async () => {
     if (!user) return;
 
-    // First get sessions in date range
-    let sessionsQuery = supabase
-      .from("workout_sessions")
-      .select("id")
+    // Build query with session date join to filter by actual workout date
+    let query = supabase
+      .from("exercise_logs")
+      .select(`
+        *,
+        workout_sessions!inner(date)
+      `)
       .eq("user_id", user.id);
 
     if (dateRange) {
-      sessionsQuery = sessionsQuery
-        .gte("date", dateRange.start.toISOString().split("T")[0])
-        .lte("date", dateRange.end.toISOString().split("T")[0]);
+      query = query
+        .gte("workout_sessions.date", dateRange.start.toISOString().split("T")[0])
+        .lte("workout_sessions.date", dateRange.end.toISOString().split("T")[0]);
     }
 
-    const { data: sessions } = await sessionsQuery;
-
-    if (!sessions || sessions.length === 0) {
-      setLogs([]);
-      setLoading(false);
-      return;
-    }
-
-    const sessionIds = sessions.map((s) => s.id);
-
-    const { data, error } = await supabase
-      .from("exercise_logs")
-      .select("*")
-      .eq("user_id", user.id)
-      .in("workout_session_id", sessionIds)
-      .order("created_at");
+    const { data, error } = await query.order("created_at");
 
     if (!error && data) {
-      setLogs(data);
+      // Map the data to include session_date for accurate date-based calculations
+      const logsWithDate = data.map((log: any) => ({
+        ...log,
+        session_date: log.workout_sessions?.date || log.created_at?.split("T")[0],
+        workout_sessions: undefined, // Remove the nested object
+      }));
+      setLogs(logsWithDate);
     }
     setLoading(false);
   };

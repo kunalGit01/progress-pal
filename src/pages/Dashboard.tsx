@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useWorkoutSessions, useAllExerciseLogs, useWorkoutDays } from "@/hooks/useWorkoutData";
+import { useWorkoutSessions, useAllExerciseLogs, useWorkoutDays, ExerciseLogWithDate } from "@/hooks/useWorkoutData";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Select,
@@ -105,26 +105,28 @@ export default function Dashboard() {
       muscleGroups.set(group, existing);
     });
 
-    // Weekly comparison
+    // Weekly comparison - use session_date for accurate date filtering
     const thisWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
     const lastWeekStart = subDays(thisWeekStart, 7);
     const lastWeekEnd = subDays(thisWeekStart, 1);
 
+    const getLogDate = (log: ExerciseLogWithDate) => new Date(log.session_date || log.created_at!);
+
     const thisWeekVolume = logs
-      .filter((l) => new Date(l.created_at!) >= thisWeekStart)
+      .filter((l) => getLogDate(l) >= thisWeekStart)
       .reduce((sum, log) => sum + log.reps * log.weight, 0);
 
-    const thisWeekSets = logs.filter((l) => new Date(l.created_at!) >= thisWeekStart).length;
+    const thisWeekSets = logs.filter((l) => getLogDate(l) >= thisWeekStart).length;
 
     const lastWeekVolume = logs
       .filter((l) => {
-        const date = new Date(l.created_at!);
+        const date = getLogDate(l);
         return date >= lastWeekStart && date <= lastWeekEnd;
       })
       .reduce((sum, log) => sum + log.reps * log.weight, 0);
 
     const lastWeekSets = logs.filter((l) => {
-      const date = new Date(l.created_at!);
+      const date = getLogDate(l);
       return date >= lastWeekStart && date <= lastWeekEnd;
     }).length;
 
@@ -162,14 +164,15 @@ export default function Dashboard() {
     };
   }, [logs, sessions, dateRange, workoutDays]);
 
-  // Volume over time (daily)
+  // Volume over time (daily) - use session_date for accurate grouping
   const volumeChartData = useMemo(() => {
     const days = eachDayOfInterval({ start: dateRange.start, end: dateRange.end });
     
     return days.map((day) => {
+      const dayStr = format(day, "yyyy-MM-dd");
       const dayLogs = logs.filter((log) => {
-        const logDate = new Date(log.created_at!);
-        return format(logDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
+        const logDate = log.session_date || log.created_at?.split("T")[0];
+        return logDate === dayStr;
       });
       
       const volume = dayLogs.reduce((sum, log) => sum + log.reps * log.weight, 0);
@@ -177,7 +180,7 @@ export default function Dashboard() {
       
       return {
         date: format(day, "MMM d"),
-        fullDate: format(day, "yyyy-MM-dd"),
+        fullDate: dayStr,
         volume,
         sets,
       };
@@ -214,7 +217,7 @@ export default function Dashboard() {
     });
   }, [logs, sessions, dateRange]);
 
-  // Day of week distribution (heatmap data)
+  // Day of week distribution (heatmap data) - use session_date
   const dayOfWeekData = useMemo(() => {
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const dayCounts = new Array(7).fill(0);
@@ -227,7 +230,8 @@ export default function Dashboard() {
     });
 
     logs.forEach((log) => {
-      const dayIndex = getDay(new Date(log.created_at!));
+      const logDate = log.session_date || log.created_at!;
+      const dayIndex = getDay(new Date(logDate));
       const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1;
       dayVolumes[adjustedIndex] += log.reps * log.weight;
     });
@@ -240,19 +244,24 @@ export default function Dashboard() {
     }));
   }, [sessions, logs]);
 
-  // Exercise progression data
+  // Exercise progression data - use session_date for accurate sorting
   const exerciseProgressionData = useMemo(() => {
     if (!selectedExercise) return [];
 
     const exerciseLogs = logs
       .filter(l => l.exercise_name === selectedExercise)
-      .sort((a, b) => new Date(a.created_at!).getTime() - new Date(b.created_at!).getTime());
+      .sort((a, b) => {
+        const dateA = new Date(a.session_date || a.created_at!);
+        const dateB = new Date(b.session_date || b.created_at!);
+        return dateA.getTime() - dateB.getTime();
+      });
 
-    // Group by date and get max weight per day
+    // Group by session date and get max weight per day
     const dateMap = new Map<string, { maxWeight: number; totalVolume: number; sets: number }>();
     
     exerciseLogs.forEach(log => {
-      const date = format(new Date(log.created_at!), "MMM d");
+      const logDate = log.session_date || log.created_at!;
+      const date = format(new Date(logDate), "MMM d");
       const existing = dateMap.get(date) || { maxWeight: 0, totalVolume: 0, sets: 0 };
       existing.maxWeight = Math.max(existing.maxWeight, log.weight);
       existing.totalVolume += log.reps * log.weight;

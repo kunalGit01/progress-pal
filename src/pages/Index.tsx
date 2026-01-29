@@ -136,76 +136,81 @@ export default function Index() {
   }
 
   return (
-    <AppLayout>
-      <div className="space-y-3">
-        {/* Header with Week Selector */}
-        <div className="space-y-2 fade-up">
-          <h1 className="text-lg font-bold text-foreground">
-            {isCurrentWeek ? "Today's" : format(selectedDate, "MMM d")} <span className="text-gradient">Workout</span>
-          </h1>
-          <WeekSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+    <AppLayout showNav={true}>
+      <div className="flex flex-col h-[calc(100vh-8rem)]">
+        {/* Sticky header section */}
+        <div className="flex-shrink-0 space-y-3 pb-3">
+          {/* Header with Week Selector */}
+          <div className="space-y-2 fade-up">
+            <h1 className="text-lg font-bold text-foreground">
+              {isCurrentWeek ? "Today's" : format(selectedDate, "MMM d")} <span className="text-gradient">Workout</span>
+            </h1>
+            <WeekSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+          </div>
+
+          {/* Day selector */}
+          <DaySelector
+            days={workoutDays}
+            selectedDay={selectedDay}
+            onSelect={setSelectedDay}
+            onRename={renameWorkoutDay}
+          />
         </div>
 
-        {/* Day selector */}
-        <DaySelector
-          days={workoutDays}
-          selectedDay={selectedDay}
-          onSelect={setSelectedDay}
-          onRename={renameWorkoutDay}
-        />
-
-        {/* Exercises */}
-        {exercisesLoading ? (
-          <div className="flex items-center justify-center h-20">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          </div>
-        ) : !currentSessionId && isSelectedDayPast ? (
-          // Past day with no session - show empty state
-          <div className="text-center py-8 fade-up">
-            <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
-              <Dumbbell className="h-5 w-5 text-muted-foreground" />
+        {/* Scrollable exercises section */}
+        <div className="flex-1 overflow-y-auto -mx-4 px-4 pb-4">
+          {exercisesLoading ? (
+            <div className="flex items-center justify-center h-20">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
-            <p className="text-xs font-medium text-foreground mb-0.5">No workout recorded</p>
-            <p className="text-[10px] text-muted-foreground">No training data for this day</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {exercises.map((exercise, index) => {
-              const exerciseLogs = logs.filter((l) => l.exercise_id === exercise.id);
-              return (
-                <div 
-                  key={exercise.id} 
-                  className="fade-up" 
-                  style={{ animationDelay: `${index * 0.03}s` }}
-                >
-                  <ExerciseCard
-                    exercise={exercise}
-                    sets={exerciseLogs}
-                    onAddSet={(data) => handleAddSet(exercise.id, exercise.name, exercise.muscle_group, data)}
-                    onUpdateSet={updateSet}
-                    onDeleteSet={deleteSet}
-                    onDeleteExercise={() => deleteExercise(exercise.id)}
-                  />
-                </div>
-              );
-            })}
-
-            {exercises.length === 0 && !isSelectedDayPast && (
-              <div className="text-center py-8 fade-up">
-                <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
-                  <Dumbbell className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <p className="text-xs font-medium text-foreground mb-0.5">No exercises yet</p>
-                <p className="text-[10px] text-muted-foreground mb-3">Add your first exercise to start</p>
+          ) : !currentSessionId && isSelectedDayPast ? (
+            // Past day with no session - show empty state
+            <div className="text-center py-8 fade-up">
+              <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
+                <Dumbbell className="h-5 w-5 text-muted-foreground" />
               </div>
-            )}
+              <p className="text-xs font-medium text-foreground mb-0.5">No workout recorded</p>
+              <p className="text-[10px] text-muted-foreground">No training data for this day</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {exercises.map((exercise, index) => {
+                const exerciseLogs = logs.filter((l) => l.exercise_id === exercise.id);
+                return (
+                  <div 
+                    key={exercise.id} 
+                    className="fade-up" 
+                    style={{ animationDelay: `${index * 0.03}s` }}
+                  >
+                    <ExerciseCard
+                      exercise={exercise}
+                      sets={exerciseLogs}
+                      onAddSet={(data) => handleAddSet(exercise.id, exercise.name, exercise.muscle_group, data)}
+                      onUpdateSet={updateSet}
+                      onDeleteSet={deleteSet}
+                      onDeleteExercise={() => deleteExercise(exercise.id)}
+                    />
+                  </div>
+                );
+              })}
 
-            {/* Only show add exercise button for today or future days */}
-            {!isSelectedDayPast && <div className="fade-up">
-              <AddExerciseSheet onAdd={handleAddExercise} />
-            </div>}
-          </div>
-        )}
+              {exercises.length === 0 && !isSelectedDayPast && (
+                <div className="text-center py-8 fade-up">
+                  <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center mx-auto mb-2">
+                    <Dumbbell className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-xs font-medium text-foreground mb-0.5">No exercises yet</p>
+                  <p className="text-[10px] text-muted-foreground mb-3">Add your first exercise to start</p>
+                </div>
+              )}
+
+              {/* Only show add exercise button for today or future days */}
+              {!isSelectedDayPast && <div className="fade-up">
+                <AddExerciseSheet onAdd={handleAddExercise} />
+              </div>}
+            </div>
+          )}
+        </div>
       </div>
     </AppLayout>
   );
