@@ -78,7 +78,7 @@ export function ExerciseCard({
   );
 
   // Calculate summary for collapsed state
-  const totalVolume = sets.reduce((sum, s) => sum + s.reps * s.weight, 0);
+  const totalVolume = sets.reduce((sum, s) => sum + s.weight, 0);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>

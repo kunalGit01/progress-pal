@@ -69,7 +69,7 @@ export default function Dashboard() {
   const stats = useMemo(() => {
     if (!logs.length) return null;
 
-    const totalVolume = logs.reduce((sum, log) => sum + log.reps * log.weight, 0);
+    const totalVolume = logs.reduce((sum, log) => sum + log.weight, 0);
     const totalSets = logs.length;
     const totalReps = logs.reduce((sum, log) => sum + log.reps, 0);
     const totalWorkouts = sessions.length;
@@ -264,7 +264,7 @@ export default function Dashboard() {
       const date = format(new Date(logDate), "MMM d");
       const existing = dateMap.get(date) || { maxWeight: 0, totalVolume: 0, sets: 0 };
       existing.maxWeight = Math.max(existing.maxWeight, log.weight);
-      existing.totalVolume += log.reps * log.weight;
+      existing.totalVolume += log.weight;
       existing.sets += 1;
       dateMap.set(date, existing);
     });
@@ -349,7 +349,7 @@ export default function Dashboard() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-card/95 backdrop-blur-lg border border-border/50 rounded-xl p-3 shadow-xl">
+      <div className="bg-card/95 backdrop-blur-lg border border-border/50 rounded-xl p-3 shadow-xl pointer-events-none" style={{ outline: 'none' }}>
         <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
         {payload.map((entry: any, idx: number) => (
           <p key={idx} className="text-xs text-muted-foreground">
@@ -493,7 +493,7 @@ export default function Dashboard() {
                     </h3>
                     <div className="h-40">
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={volumeChartData.filter(d => d.volume > 0)}>
+                        <AreaChart data={volumeChartData.filter(d => d.volume > 0)} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                           <defs>
                             <linearGradient id="volumeArea" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="hsl(168, 84%, 42%)" stopOpacity={0.4} />
@@ -515,7 +515,7 @@ export default function Dashboard() {
                             width={40}
                             tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`}
                           />
-                          <Tooltip content={<CustomTooltip />} />
+                          <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={{ outline: 'none' }} />
                           <Area 
                             type="monotone" 
                             dataKey="volume" 
@@ -523,6 +523,7 @@ export default function Dashboard() {
                             stroke="hsl(168, 84%, 42%)"
                             strokeWidth={2}
                             fill="url(#volumeArea)"
+                            isAnimationActive={false}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -555,8 +556,9 @@ export default function Dashboard() {
                           fill="hsl(168, 84%, 42%)"
                           fillOpacity={0.4}
                           strokeWidth={2}
+                          isAnimationActive={false}
                         />
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={{ outline: 'none' }} />
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
@@ -591,7 +593,7 @@ export default function Dashboard() {
                     </h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={exerciseProgressionData}>
+                        <ComposedChart data={exerciseProgressionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(240 5% 16%)" opacity={0.3} />
                           <XAxis 
                             dataKey="date" 
@@ -614,7 +616,7 @@ export default function Dashboard() {
                             tickLine={false}
                             width={30}
                           />
-                          <Tooltip content={<CustomTooltip />} />
+                          <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={{ outline: 'none' }} />
                           <Legend 
                             wrapperStyle={{ fontSize: '10px' }}
                             iconSize={8}
@@ -626,6 +628,7 @@ export default function Dashboard() {
                             fill="hsl(168, 84%, 42%)"
                             fillOpacity={0.3}
                             radius={[4, 4, 0, 0]}
+                            isAnimationActive={false}
                           />
                           <Line 
                             yAxisId="left"
@@ -635,6 +638,7 @@ export default function Dashboard() {
                             stroke="hsl(45, 93%, 47%)"
                             strokeWidth={2}
                             dot={{ fill: 'hsl(45, 93%, 47%)', r: 3 }}
+                            isAnimationActive={false}
                           />
                         </ComposedChart>
                       </ResponsiveContainer>
@@ -740,6 +744,7 @@ export default function Dashboard() {
                             outerRadius={70}
                             paddingAngle={3}
                             dataKey="value"
+                            isAnimationActive={false}
                           >
                             {muscleGroupPieData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
@@ -750,12 +755,14 @@ export default function Dashboard() {
                               if (!active || !payload?.length) return null;
                               const data = payload[0].payload;
                               return (
-                                <div className="bg-card/95 backdrop-blur-lg border border-border/50 rounded-lg p-2 shadow-xl">
+                                <div className="bg-card/95 backdrop-blur-lg border border-border/50 rounded-lg p-2 shadow-xl pointer-events-none" style={{ outline: 'none' }}>
                                   <p className="text-xs font-semibold" style={{ color: data.color }}>{data.name}</p>
                                   <p className="text-[10px] text-muted-foreground">{data.value} sets ({data.percentage}%)</p>
                                 </div>
                               );
                             }}
+                            cursor={false}
+                            wrapperStyle={{ outline: 'none' }}
                           />
                         </PieChart>
                       </ResponsiveContainer>
@@ -830,7 +837,7 @@ export default function Dashboard() {
                     </h3>
                     <div className="h-40">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={stats.muscleGroups.slice(0, 6)} layout="vertical">
+                        <BarChart data={stats.muscleGroups.slice(0, 6)} layout="vertical" margin={{ top: 10, right: 10, left: 55, bottom: 0 }}>
                           <defs>
                             <linearGradient id="muscleGradient" x1="0" y1="0" x2="1" y2="0">
                               <stop offset="0%" stopColor="hsl(168, 84%, 42%)" />
@@ -858,18 +865,21 @@ export default function Dashboard() {
                               if (!active || !payload?.length) return null;
                               const data = payload[0].payload;
                               return (
-                                <div className="bg-card/95 backdrop-blur-lg border border-border/50 rounded-lg p-2 shadow-xl">
+                                <div className="bg-card/95 backdrop-blur-lg border border-border/50 rounded-lg p-2 shadow-xl pointer-events-none" style={{ outline: 'none' }}>
                                   <p className="text-xs font-semibold text-foreground">{data.name}</p>
                                   <p className="text-[10px] text-muted-foreground">{data.volume.toLocaleString()} kg volume</p>
                                   <p className="text-[10px] text-muted-foreground">{data.sets} sets</p>
                                 </div>
                               );
                             }}
+                            cursor={false}
+                            wrapperStyle={{ outline: 'none' }}
                           />
                           <Bar 
                             dataKey="volume" 
                             fill="url(#muscleGradient)"
                             radius={[0, 6, 6, 0]}
+                            isAnimationActive={false}
                           />
                         </BarChart>
                       </ResponsiveContainer>
