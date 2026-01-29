@@ -187,7 +187,7 @@ export default function Dashboard() {
     });
   }, [logs, dateRange]);
 
-  // Weekly aggregated data
+  // Weekly aggregated data - use session_date for accuracy
   const weeklyData = useMemo(() => {
     const weeks = eachWeekOfInterval({ start: dateRange.start, end: dateRange.end }, { weekStartsOn: 1 });
     
@@ -196,7 +196,7 @@ export default function Dashboard() {
       weekEnd.setDate(weekEnd.getDate() + 6);
       
       const weekLogs = logs.filter((log) => {
-        const logDate = new Date(log.created_at!);
+        const logDate = new Date(log.session_date || log.created_at!);
         return logDate >= weekStart && logDate <= weekEnd;
       });
       
@@ -422,7 +422,9 @@ export default function Dashboard() {
                 <div className="grid grid-cols-2 gap-2">
                   <StatCard 
                     icon={Flame} 
-                    value={`${(stats.totalVolume / 1000).toFixed(1)}k`}
+                    value={stats.totalVolume >= 1000 
+                      ? `${(stats.totalVolume / 1000).toFixed(1)}k` 
+                      : `${Math.round(stats.totalVolume)}`}
                     label="Total Volume (kg)"
                     change={stats.weeklyVolumeChange}
                     iconBg="bg-primary/10"
@@ -468,8 +470,12 @@ export default function Dashboard() {
                       <p className="text-[10px] text-muted-foreground">Sets</p>
                     </div>
                     <div className="text-center border-x border-border/30">
-                      <p className="text-xl font-black text-foreground">{(stats.thisWeekVolume / 1000).toFixed(1)}k</p>
-                      <p className="text-[10px] text-muted-foreground">Volume</p>
+                      <p className="text-xl font-black text-foreground">
+                        {stats.thisWeekVolume >= 1000 
+                          ? `${(stats.thisWeekVolume / 1000).toFixed(1)}k` 
+                          : `${Math.round(stats.thisWeekVolume)}`}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">Volume (kg)</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xl font-black text-foreground">{stats.workoutsPerWeek}</p>
@@ -506,8 +512,8 @@ export default function Dashboard() {
                             tick={{ fontSize: 9, fill: 'hsl(240 5% 55%)' }}
                             axisLine={false}
                             tickLine={false}
-                            width={35}
-                            tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                            width={40}
+                            tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`}
                           />
                           <Tooltip content={<CustomTooltip />} />
                           <Area 
