@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkoutDays, useExercises, useWorkoutSessions, useExerciseLogs } from "@/hooks/useWorkoutData";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -17,6 +17,7 @@ export default function Index() {
   const { exercises, loading: exercisesLoading, addExercise, deleteExercise } = useExercises(selectedDay?.id || null);
   const { sessions, createSession, getSessionByDate } = useWorkoutSessions();
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const sessionInitSeq = useRef(0);
   const { logs, addSet, updateSet, deleteSet, refetch: refetchLogs } = useExerciseLogs(currentSessionId);
 
   const isCurrentWeek = isSameWeek(selectedDate, new Date(), { weekStartsOn: 1 });
@@ -57,6 +58,8 @@ export default function Index() {
   }, [workoutDays, isCurrentWeek]);
 
   useEffect(() => {
+    const seq = ++sessionInitSeq.current;
+
     const initSession = async () => {
       if (!selectedDay) {
         setCurrentSessionId(null);
@@ -72,11 +75,18 @@ export default function Index() {
       workoutDate.setDate(weekStart.getDate() + (selectedDay.day_number - 1));
 
       const existingSession = await getSessionByDate(selectedDay.id, workoutDate);
+      if (sessionInitSeq.current !== seq) return;
+
       if (existingSession) {
         setCurrentSessionId(existingSession.id);
-      } else if (isCurrentWeek) {
+        return;
+      }
+
+      if (isCurrentWeek) {
         // Only auto-create sessions for current week
         const newSession = await createSession(selectedDay.id, workoutDate);
+        if (sessionInitSeq.current !== seq) return;
+
         if (newSession) {
           setCurrentSessionId(newSession.id);
         }
