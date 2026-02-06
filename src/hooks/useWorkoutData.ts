@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -43,6 +44,8 @@ export interface ExerciseLog {
   is_pr: boolean;
   created_at: string;
 }
+
+const toDateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
 export function useWorkoutDays() {
   const { user } = useAuth();
@@ -176,8 +179,8 @@ export function useWorkoutSessions(dateRange?: { start: Date; end: Date }) {
 
     if (dateRange) {
       query = query
-        .gte("date", dateRange.start.toISOString().split("T")[0])
-        .lte("date", dateRange.end.toISOString().split("T")[0]);
+        .gte("date", toDateKey(dateRange.start))
+        .lte("date", toDateKey(dateRange.end));
     }
 
     const { data, error } = await query;
@@ -200,7 +203,7 @@ export function useWorkoutSessions(dateRange?: { start: Date; end: Date }) {
       .insert({
         user_id: user.id,
         workout_day_id: workoutDayId,
-        date: (date || new Date()).toISOString().split("T")[0],
+        date: toDateKey(date || new Date()),
       })
       .select()
       .single();
@@ -215,7 +218,7 @@ export function useWorkoutSessions(dateRange?: { start: Date; end: Date }) {
   const getTodaySession = async (workoutDayId: string) => {
     if (!user) return null;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = toDateKey(new Date());
 
     const { data } = await supabase
       .from("workout_sessions")
@@ -231,7 +234,7 @@ export function useWorkoutSessions(dateRange?: { start: Date; end: Date }) {
   const getSessionByDate = async (workoutDayId: string, date: Date) => {
     if (!user) return null;
 
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = toDateKey(date);
 
     const { data } = await supabase
       .from("workout_sessions")
@@ -358,8 +361,8 @@ export function useAllExerciseLogs(dateRange?: { start: Date; end: Date }) {
 
     if (dateRange) {
       query = query
-        .gte("workout_sessions.date", dateRange.start.toISOString().split("T")[0])
-        .lte("workout_sessions.date", dateRange.end.toISOString().split("T")[0]);
+        .gte("workout_sessions.date", toDateKey(dateRange.start))
+        .lte("workout_sessions.date", toDateKey(dateRange.end));
     }
 
     const { data, error } = await query.order("created_at");
